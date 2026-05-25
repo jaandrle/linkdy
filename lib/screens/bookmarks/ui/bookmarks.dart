@@ -24,6 +24,17 @@ final webviewBookmarksKey = GlobalKey<NavigatorState>();
 class BookmarksScreen extends HookConsumerWidget {
   const BookmarksScreen({super.key});
 
+  String fixUrlTitle(String url) {
+    // fix up the url if it contains a title or text before
+    // like "Collider: https://collider.com/article-url"
+    final pos = url.indexOf('http://');
+    if (pos>=0) return url.substring(pos);
+    final pos1 = url.indexOf('https://');
+    if (pos1>=0) return url.substring(pos1);
+    // otherwise it's invalid, we just return the url as is
+    return url;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.of(context).size.width;
@@ -31,7 +42,7 @@ class BookmarksScreen extends HookConsumerWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (sharedUrl == null) return;
-      openBookmarkFormModal(context: context, width: width, url: sharedUrl);
+      openBookmarkFormModal(context: context, width: width, url: fixUrlTitle(sharedUrl));
       ref.read(receiveSharingIntentUrlProvider.notifier).setValue(null);
     });
 
